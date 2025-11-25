@@ -1,0 +1,38 @@
+services:
+  postgres:
+    image: postgres:15
+    container_name: local_postgres
+    restart: always
+    environment:
+      POSTGRES_USER: localuser
+      POSTGRES_PASSWORD: localpass
+      POSTGRES_DB: localdb
+    ports:
+      - "5433:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  api:
+    build: .
+    container_name: catfacts_api
+    restart: always
+    volumes:
+      - ./migrations:/app/migrations
+      - ./src:/app/src
+      - ./alembic.ini:/app/alembic.ini
+      - ./.env:/app/.env
+    depends_on:
+      - postgres
+    env_file:
+      - .env
+    environment:
+      PORT: 8080
+    ports:
+      - "8080:8080"
+    command: >
+      uvicorn main:app
+      --host 0.0.0.0
+      --port ${PORT:-8080}
+
+volumes:
+  pgdata:
