@@ -1,0 +1,51 @@
+services:
+  # Web Service (API)
+  - type: web
+    name: dnd-monsters-api
+    env: docker
+    repo: https://github.com/YOUR_USERNAME/YOUR_REPO.git
+    branch: main
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    envVars:
+      - key: PORT
+        value: 8080
+      - key: PG_HOST
+        fromDatabase:
+          name: dnd-postgres
+          property: host
+      - key: PG_PORT
+        fromDatabase:
+          name: dnd-postgres
+          property: port
+      - key: PG_USERNAME
+        fromDatabase:
+          name: dnd-postgres
+          property: user
+      - key: PG_PASSWORD
+        fromDatabase:
+          name: dnd-postgres
+          property: password
+      - key: PG_DB_NAME
+        fromDatabase:
+          name: dnd-postgres
+          property: database
+      - key: REDIS_URL
+        fromService:
+          type: redis
+          name: dnd-redis
+          property: connectionString
+      - key: SECRET_KEY
+        generateValue: true
+      - key: ALGORITHM
+        value: HS256
+      - key: ACCESS_TOKEN_EXPIRE_MINUTES
+        value: 30
+    healthCheckPath: /health
+
+databases:
+  # PostgreSQL Database
+  - name: dnd-postgres
+    databaseName: dnddb
+    user: dnduser
+    plan: free
