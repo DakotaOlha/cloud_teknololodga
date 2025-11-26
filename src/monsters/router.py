@@ -43,7 +43,6 @@ async def get_monster(
     session: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
-    """Отримати монстра за ID"""
     service = MonsterService(session)
     return await service.get_monster_by_id(monster_id, current_user.id)
 
@@ -55,7 +54,6 @@ async def update_monster(
     session: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
-    """Оновити монстра"""
     service = MonsterService(session)
     return await service.update_monster(monster_id, current_user.id, monster_data)
 
@@ -66,7 +64,6 @@ async def delete_monster(
     session: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
-    """Видалити монстра"""
     service = MonsterService(session)
     await service.delete_monster(monster_id, current_user.id)
 
@@ -76,6 +73,5 @@ async def get_random_monster_from_api(
     session: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
-    """Отримати випадкового монстра з D&D API"""
     service = MonsterService(session)
     return await service.get_random_monster_from_api()  # Додали await

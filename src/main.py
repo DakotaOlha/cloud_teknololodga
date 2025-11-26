@@ -2,23 +2,24 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 
 from src.core.database import init_db
+from src.core.logging.sentry import init_sentry
+from src.core.logging.logging_config import setup_logging
 from src.auth.router import router as auth_router
 from src.monsters.router import router as monsters_router
 from src.cache.router import router as cache_router
+from src.core.router import router as core_router
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    """Lifespan event handler"""
-    # Startup
+    init_sentry()
+    setup_logging()
     print("🚀 Starting application...")
-    # Міграції тепер запускаються в docker-compose command
     await init_db()
     print("✅ Database initialized")
 
     yield
 
-    # Shutdown
     print("👋 Shutting down application...")
 
 
@@ -29,10 +30,10 @@ app = FastAPI(
     lifespan=lifespan
 )
 
-# Підключення роутерів
 app.include_router(auth_router)
 app.include_router(monsters_router)
 app.include_router(cache_router)
+app.include_router(core_router)
 
 
 @app.get("/")

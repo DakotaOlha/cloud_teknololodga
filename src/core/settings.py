@@ -8,11 +8,9 @@ class Settings(BaseSettings):
         extra="ignore"
     )
 
-    # Azure
     azure_storage_connection_string: str = ""
     azure_container_name: str = ""
 
-    # PostgreSQL
     pg_host: str = "localhost"
     pg_port: int = 5432
     pg_username: str = "postgres"
@@ -20,11 +18,10 @@ class Settings(BaseSettings):
     pg_db_name: str = "postgres"
     pg_db_driver: str = "postgresql"
 
-    # Redis
     redis_url: str = "redis://localhost:6379"
     redis_ttl: int = 60
 
-    # Auth
+    sentry_dsn: str | None = None
     secret_key: str = "your-secret-key-change-in-production"
     algorithm: str = "HS256"
     access_token_expire_minutes: int = 30

@@ -40,7 +40,6 @@ class AuthService:
         return encoded_jwt
 
     async def register_user(self, user_data: UserCreate) -> User:
-        # Перевірка чи існує користувач
         existing_user = await self.repository.get_by_username(user_data.username)
         if existing_user:
             raise HTTPException(
@@ -55,7 +54,6 @@ class AuthService:
                 detail="Email already registered"
             )
 
-        # Створення користувача
         hashed_password = self.get_password_hash(user_data.password)
         user = await self.repository.create(
             username=user_data.username,

@@ -11,7 +11,6 @@ class CacheService:
         self.redis: aioredis.Redis = get_redis()
 
     async def get(self, key: str) -> Optional[dict]:
-        """Отримати значення з кешу"""
         try:
             value = await self.redis.get(key)
             if value:
@@ -22,7 +21,6 @@ class CacheService:
             return None
 
     async def set(self, key: str, value: Any, ttl: int = None) -> bool:
-        """Зберегти значення в кеш"""
         try:
             ttl = ttl or settings.redis_ttl
             serialized = json.dumps(value)
@@ -33,7 +31,6 @@ class CacheService:
             return False
 
     async def delete(self, key: str) -> bool:
-        """Видалити значення з кешу"""
         try:
             await self.redis.delete(key)
             return True
@@ -42,5 +39,4 @@ class CacheService:
             return False
 
     async def close(self):
-        """Закрити з'єднання з Redis"""
         await self.redis.close()

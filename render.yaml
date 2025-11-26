@@ -1,5 +1,4 @@
 services:
-  # Web Service (API)
   - type: web
     name: dnd-monsters-api
     env: docker
@@ -44,7 +43,6 @@ services:
     healthCheckPath: /health
 
 databases:
-  # PostgreSQL Database
   - name: dnd-postgres
     databaseName: dnddb
     user: dnduser

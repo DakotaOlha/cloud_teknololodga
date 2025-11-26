@@ -3,7 +3,6 @@ from src.core.settings import settings
 
 
 def get_redis() -> aioredis.Redis:
-    """Отримання Redis клієнта"""
     return aioredis.from_url(
         settings.redis_url,
         encoding="utf-8",

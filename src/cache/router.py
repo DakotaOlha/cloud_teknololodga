@@ -12,7 +12,6 @@ async def set_cache(
     data: CacheSetRequest,
     current_user: User = Depends(get_current_user)
 ):
-    """Зберегти значення в Redis"""
     service = CacheService()
     success = await service.set(data.key, data.value)
     return {"success": success, "key": data.key}
@@ -23,7 +22,6 @@ async def get_cache(
     key: str,
     current_user: User = Depends(get_current_user)
 ):
-    """Отримати значення з Redis"""
     service = CacheService()
     value = await service.get(key)
     return {"key": key, "value": value}
@@ -34,7 +32,6 @@ async def delete_cache(
     key: str,
     current_user: User = Depends(get_current_user)
 ):
-    """Видалити значення з Redis"""
     service = CacheService()
     success = await service.delete(key)
     return {"success": success, "key": key}

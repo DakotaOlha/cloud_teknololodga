@@ -12,7 +12,6 @@ class Base(DeclarativeBase):
 
 
 class TimestampMixin:
-    """Mixin для автоматичного додавання created_at та updated_at"""
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
         server_default=func.now(),
@@ -26,14 +25,12 @@ class TimestampMixin:
     )
 
 
-# Створення асинхронного engine
 engine = create_async_engine(
     settings.postgres,
     echo=True,
     pool_pre_ping=True
 )
 
-# Створення sessionmaker
 AsyncSessionLocal = async_sessionmaker(
     engine,
     class_=AsyncSession,
@@ -42,7 +39,6 @@ AsyncSessionLocal = async_sessionmaker(
 
 
 async def get_db() -> AsyncSession:
-    """Dependency для отримання сесії бази даних"""
     async with AsyncSessionLocal() as session:
         try:
             yield session
@@ -51,6 +47,5 @@ async def get_db() -> AsyncSession:
 
 
 async def init_db():
-    """Ініціалізація бази даних (створення таблиць)"""
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)

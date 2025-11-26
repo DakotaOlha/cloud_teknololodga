@@ -16,7 +16,6 @@ class MonsterService:
         self.repository = MonsterRepository(session)
 
     async def create_monster(self, user_id: int, monster_data: MonsterCreate) -> Monster:
-        """Створення монстра для користувача"""
         return await self.repository.create(
             user_id=user_id,
             name=monster_data.name,
@@ -27,11 +26,9 @@ class MonsterService:
         )
 
     async def get_all_monsters(self, user_id: int) -> List[Monster]:
-        """Отримання всіх монстрів користувача"""
         return await self.repository.get_all(user_id)
 
     async def get_monster_by_id(self, monster_id: int, user_id: int) -> Monster:
-        """Отримання монстра за ID"""
         monster = await self.repository.get_by_id(monster_id, user_id)
         if not monster:
             raise HTTPException(
@@ -43,7 +40,6 @@ class MonsterService:
     async def update_monster(
             self, monster_id: int, user_id: int, monster_data: MonsterUpdate
     ) -> Monster:
-        """Оновлення монстра"""
         monster = await self.get_monster_by_id(monster_id, user_id)
 
         update_data = monster_data.model_dump(exclude_unset=True)
@@ -53,23 +49,19 @@ class MonsterService:
         return await self.repository.update(monster)
 
     async def delete_monster(self, monster_id: int, user_id: int):
-        """Видалення монстра"""
         monster = await self.get_monster_by_id(monster_id, user_id)
         await self.repository.delete(monster)
 
     async def get_random_monster_from_api(self) -> MonsterFromAPI:
-        """Отримання випадкового монстра з D&D API з кешуванням"""
         from src.cache.service import CacheService
 
         cache_key = "dnd:random_monster"
         cache_service = CacheService()
 
-        # Спроба отримати з кешу
         cached = await cache_service.get(cache_key)
         if cached:
             return MonsterFromAPI(**cached)
 
-        # Якщо немає в кеші - отримуємо з API
         response = requests.get(f"{self.base_url}/api/monsters", timeout=10)
         response.raise_for_status()
 
@@ -101,7 +93,6 @@ class MonsterService:
             "image_url": image_url
         }
 
-        # Зберігаємо в кеш
         await cache_service.set(cache_key, result)
 
         return MonsterFromAPI(**result)

@@ -15,7 +15,6 @@ class Monster(Base, TimestampMixin):
     hit_points: Mapped[int] = mapped_column(Integer, nullable=False)
     image_url: Mapped[str] = mapped_column(Text, nullable=True)
 
-    # Відношення до користувача
     user: Mapped["User"] = relationship("User", backref="monsters")
 
     def __repr__(self):
