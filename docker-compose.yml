@@ -11,28 +11,51 @@ services:
       - "5433:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U localuser"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: local_redis
+    restart: always
+    ports:
+      - "6380:6379"  # Змінили на 6380
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   api:
     build: .
-    container_name: catfacts_api
+    container_name: dnd_api
     restart: always
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    env_file:
+      - .env
+    environment:
+      PORT: 8080
+      PG_HOST: postgres
+      REDIS_URL: redis://redis:6379
+    ports:
+      - "8080:8080"
     volumes:
       - ./migrations:/app/migrations
       - ./src:/app/src
       - ./alembic.ini:/app/alembic.ini
       - ./.env:/app/.env
-    depends_on:
-      - postgres
-    env_file:
-      - .env
-    environment:
-      PORT: 8080
-    ports:
-      - "8080:8080"
     command: >
-      uvicorn main:app
+      uvicorn src.main:app
       --host 0.0.0.0
-      --port ${PORT:-8080}
+      --port 8080
+      --reload
 
 volumes:
   pgdata:
