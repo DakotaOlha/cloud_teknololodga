@@ -1,7 +1,10 @@
+from datetime import datetime
+
 import pytest
 from fastapi.testclient import TestClient
+
+from src.auth.service import get_current_user
 from src.main import app
-from unittest.mock import AsyncMock
 
 
 class FakeUser:
@@ -9,26 +12,29 @@ class FakeUser:
         self.id = 1
         self.username = "test"
         self.email = "t@t.com"
+        self.is_active = True
+        self.created_at = datetime(2024, 1, 1)
+        self.updated_at = datetime(2024, 1, 1)
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture(scope="function")
 def client():
-    return TestClient(app)
+    app.dependency_overrides.clear()
 
-
-@pytest.fixture(autouse=True)
-def override_current_user(monkeypatch):
-    async def fake_user():
+    async def fake_current_user():
         return FakeUser()
 
-    monkeypatch.setattr("src.auth.router.get_current_user", fake_user)
-    monkeypatch.setattr("src.monsters.router.get_current_user", fake_user)
-    monkeypatch.setattr("src.cache.router.get_current_user", fake_user)
+    app.dependency_overrides[get_current_user] = fake_current_user
+
+    yield TestClient(app)
+
+    app.dependency_overrides.clear()
 
 
 @pytest.fixture
 def fake_redis(monkeypatch):
     from fakeredis.aioredis import FakeRedis
+
     redis = FakeRedis()
     monkeypatch.setattr("src.cache.service.get_redis", lambda: redis)
     return redis

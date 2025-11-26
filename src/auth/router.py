@@ -1,25 +1,23 @@
+import logging
+from datetime import timedelta
+
+import sentry_sdk
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.ext.asyncio import AsyncSession
-from datetime import timedelta
-import logging
-import sentry_sdk
 
+from src.auth.models import User
+from src.auth.schemas import Token, UserCreate, UserResponse
+from src.auth.service import AuthService, get_current_user
 from src.core.database import get_db
 from src.core.settings import settings
-from src.auth.service import AuthService, get_current_user
-from src.auth.schemas import UserCreate, UserResponse, Token
-from src.auth.models import User
 
 router = APIRouter(prefix="/auth", tags=["Authentication"])
 logger = logging.getLogger(__name__)
 
 
 @router.post("/register", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
-async def register(
-    user_data: UserCreate,
-    session: AsyncSession = Depends(get_db)
-):
+async def register(user_data: UserCreate, session: AsyncSession = Depends(get_db)):
     logger.info(f"[AUTH][REGISTER] Attempting to register user: {user_data.username}")
     try:
         service = AuthService(session)
@@ -36,10 +34,7 @@ async def register(
 
 
 @router.post("/login", response_model=Token)
-async def login(
-    form_data: OAuth2PasswordRequestForm = Depends(),
-    session: AsyncSession = Depends(get_db)
-):
+async def login(form_data: OAuth2PasswordRequestForm = Depends(), session: AsyncSession = Depends(get_db)):
     logger.info(f"[AUTH][LOGIN] Login attempt for user: {form_data.username}")
     try:
         service = AuthService(session)
@@ -53,9 +48,7 @@ async def login(
             )
 
         access_token_expires = timedelta(minutes=settings.access_token_expire_minutes)
-        access_token = service.create_access_token(
-            data={"sub": user.username}, expires_delta=access_token_expires
-        )
+        access_token = service.create_access_token(data={"sub": user.username}, expires_delta=access_token_expires)
         logger.info(f"[AUTH][LOGIN] User logged in successfully: {user.username}")
         return {"access_token": access_token, "token_type": "bearer"}
     except HTTPException:

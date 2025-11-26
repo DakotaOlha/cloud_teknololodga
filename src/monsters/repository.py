@@ -1,6 +1,8 @@
-from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select
 from typing import List, Optional
+
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
+
 from src.monsters.models import Monster
 
 
@@ -15,7 +17,7 @@ class MonsterRepository:
         monster_type: str,
         challenge_rating: float,
         hit_points: int,
-        image_url: Optional[str] = None
+        image_url: Optional[str] = None,
     ) -> Monster:
         monster = Monster(
             user_id=user_id,
@@ -23,7 +25,7 @@ class MonsterRepository:
             monster_type=monster_type,
             challenge_rating=challenge_rating,
             hit_points=hit_points,
-            image_url=image_url
+            image_url=image_url,
         )
         self.session.add(monster)
         await self.session.commit()
@@ -31,18 +33,11 @@ class MonsterRepository:
         return monster
 
     async def get_all(self, user_id: int) -> List[Monster]:
-        result = await self.session.execute(
-            select(Monster).where(Monster.user_id == user_id)
-        )
+        result = await self.session.execute(select(Monster).where(Monster.user_id == user_id))
         return list(result.scalars().all())
 
     async def get_by_id(self, monster_id: int, user_id: int) -> Optional[Monster]:
-        result = await self.session.execute(
-            select(Monster).where(
-                Monster.id == monster_id,
-                Monster.user_id == user_id
-            )
-        )
+        result = await self.session.execute(select(Monster).where(Monster.id == monster_id, Monster.user_id == user_id))
         return result.scalar_one_or_none()
 
     async def update(self, monster: Monster) -> Monster:

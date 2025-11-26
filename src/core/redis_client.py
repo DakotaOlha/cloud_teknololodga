@@ -1,4 +1,5 @@
 from redis import asyncio as aioredis
+
 from src.core.settings import settings
 
 

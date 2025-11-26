@@ -1,12 +1,13 @@
-import requests
 import random
-from typing import List, Optional
+from typing import List
+
+import requests
 from fastapi import HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.monsters.repository import MonsterRepository
-from src.monsters.schemas import MonsterCreate, MonsterUpdate, MonsterFromAPI
 from src.monsters.models import Monster
+from src.monsters.repository import MonsterRepository
+from src.monsters.schemas import MonsterCreate, MonsterFromAPI, MonsterUpdate
 
 
 class MonsterService:
@@ -22,7 +23,7 @@ class MonsterService:
             monster_type=monster_data.monster_type,
             challenge_rating=monster_data.challenge_rating,
             hit_points=monster_data.hit_points,
-            image_url=monster_data.image_url
+            image_url=monster_data.image_url,
         )
 
     async def get_all_monsters(self, user_id: int) -> List[Monster]:
@@ -31,15 +32,10 @@ class MonsterService:
     async def get_monster_by_id(self, monster_id: int, user_id: int) -> Monster:
         monster = await self.repository.get_by_id(monster_id, user_id)
         if not monster:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="Monster not found"
-            )
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Monster not found")
         return monster
 
-    async def update_monster(
-            self, monster_id: int, user_id: int, monster_data: MonsterUpdate
-    ) -> Monster:
+    async def update_monster(self, monster_id: int, user_id: int, monster_data: MonsterUpdate) -> Monster:
         monster = await self.get_monster_by_id(monster_id, user_id)
 
         update_data = monster_data.model_dump(exclude_unset=True)
@@ -69,10 +65,7 @@ class MonsterService:
         monsters = data.get("results", [])
 
         if not monsters:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="No monsters found in D&D API"
-            )
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No monsters found in D&D API")
 
         monster = random.choice(monsters)
 
@@ -90,7 +83,7 @@ class MonsterService:
             "type": detail_data["type"],
             "challenge_rating": detail_data["challenge_rating"],
             "hit_points": detail_data["hit_points"],
-            "image_url": image_url
+            "image_url": image_url,
         }
 
         await cache_service.set(cache_key, result)

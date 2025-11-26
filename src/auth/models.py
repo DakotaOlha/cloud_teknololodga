@@ -1,5 +1,6 @@
-from sqlalchemy import String, Boolean
+from sqlalchemy import Boolean, String
 from sqlalchemy.orm import Mapped, mapped_column
+
 from src.core.database import Base, TimestampMixin
 
 

@@ -1,5 +1,7 @@
-from sqlalchemy import String, Float, Integer, ForeignKey, Text
+from sqlalchemy import Float, ForeignKey, Integer, String, Text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
+
+from src.auth.models import User
 from src.core.database import Base, TimestampMixin
 
 
