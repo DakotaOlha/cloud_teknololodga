@@ -78,4 +78,4 @@ async def get_random_monster_from_api(
 ):
     """Отримати випадкового монстра з D&D API"""
     service = MonsterService(session)
-    return service.get_random_monster_from_api()
+    return await service.get_random_monster_from_api()  # Додали await

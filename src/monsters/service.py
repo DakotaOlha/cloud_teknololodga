@@ -41,7 +41,7 @@ class MonsterService:
         return monster
 
     async def update_monster(
-        self, monster_id: int, user_id: int, monster_data: MonsterUpdate
+            self, monster_id: int, user_id: int, monster_data: MonsterUpdate
     ) -> Monster:
         """Оновлення монстра"""
         monster = await self.get_monster_by_id(monster_id, user_id)
@@ -57,16 +57,15 @@ class MonsterService:
         monster = await self.get_monster_by_id(monster_id, user_id)
         await self.repository.delete(monster)
 
-    def get_random_monster_from_api(self) -> MonsterFromAPI:
+    async def get_random_monster_from_api(self) -> MonsterFromAPI:
         """Отримання випадкового монстра з D&D API з кешуванням"""
         from src.cache.service import CacheService
-        import asyncio
 
         cache_key = "dnd:random_monster"
         cache_service = CacheService()
 
         # Спроба отримати з кешу
-        cached = asyncio.run(cache_service.get(cache_key))
+        cached = await cache_service.get(cache_key)
         if cached:
             return MonsterFromAPI(**cached)
 
@@ -78,7 +77,10 @@ class MonsterService:
         monsters = data.get("results", [])
 
         if not monsters:
-            raise ValueError("No monsters found.")
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="No monsters found in D&D API"
+            )
 
         monster = random.choice(monsters)
 
@@ -98,5 +100,8 @@ class MonsterService:
             "hit_points": detail_data["hit_points"],
             "image_url": image_url
         }
-        asyncio.run(cache_service.set(cache_key, result))
+
+        # Зберігаємо в кеш
+        await cache_service.set(cache_key, result)
+
         return MonsterFromAPI(**result)

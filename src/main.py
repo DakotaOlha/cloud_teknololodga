@@ -1,7 +1,5 @@
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
-from alembic.config import Config
-from alembic import command
 
 from src.core.database import init_db
 from src.auth.router import router as auth_router
@@ -9,18 +7,12 @@ from src.monsters.router import router as monsters_router
 from src.cache.router import router as cache_router
 
 
-def run_migrations():
-    """Запуск міграцій Alembic"""
-    alembic_cfg = Config("alembic.ini")
-    command.upgrade(alembic_cfg, "head")
-
-
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Lifespan event handler"""
     # Startup
     print("🚀 Starting application...")
-    run_migrations()
+    # Міграції тепер запускаються в docker-compose command
     await init_db()
     print("✅ Database initialized")
 
